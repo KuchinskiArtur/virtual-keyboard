@@ -1,54 +1,123 @@
-body{
-    text-align: center;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-#text{
-    width: 70%;
-    max-width: 1015px;
-    height: 250px;
-    font-size: 1.5em;
+html {
+    font-size: 12px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
 }
 
-#keyboard{
-    background: lightgray;
-    padding:10px;
-    max-width:1000px;
-    min-width: 650px;
-    margin: 15px auto;
-    border:1px solid dimgrey;
-}
-
-.row{
+.main {
+    width: 100vw;
+    height: 100vh;
     display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgb(255, 255, 255);
 }
 
-.row div{
-    border:1px solid dimgrey;
-    background: whitesmoke;
-    padding:10px;
-    margin:2px;
-    font-size: 1.5em;
+.container {
+    width: 90rem;
+    height: 70rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.textarea {
+    height: 25%;
+    width: 100%;
+    align-self: center;
+    background-color: #fff;
+    border: 2px solid #000000;
+    border-radius: 5px;
+    font-size: 1.5rem;
+    color: #000000;
+    padding: 1rem;
+    white-space: pre-wrap;
+    outline: none;
+    margin-bottom: 2rem;
+}
+
+.keyboard {
+    width: 100%;
+    min-width: 87rem;
+    height: 43%;
+    background-color: #1c1b1b;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 0.6rem;
+    padding: 1rem;
+    border-radius: 5px;
+    justify-content: center;
+}
+
+.keyboard__key {
+    position: relative;
+    width: 5rem;
+    height: 5rem;
+    background-color: #b74f4f;
+    color: #ffffff;
+    border: #ffffff 1px solid;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    transition: 0.3s;
+}
+
+.keyboard__key:hover {
+    background-color: #062853;
     cursor: pointer;
-    border-radius: 4px;
-}
-/* 
-.row div:hover
-{
-  box-shadow: 0 0 40px 40px #3498db inset, 0 0 0 0 #3498db;
-  -webkit-transition: all 150ms ease-in-out;
-  transition: all 150ms ease-in-out;
-}
-.row div:hover{
-    box-shadow: 0 0 10px 0 #3498db inset, 0 0 10px 4px #3498db;
-} 
-*/
-
-@keyframes glowing {
-    0% { background-color: whitesmoke;}
-    50% { background-color: lightseagreen }
-    100% { background-color: whitesmoke; }
 }
 
-.active {
-    animation: glowing 1300ms 1;
+.key_active {
+    background-color: #062853;
+    border: #08022c 3px solid;
+    transform: scale(0.9);
+}
+
+.key_backspace {
+    width: 12rem;
+}
+
+.key_tab-del {
+    width: 5.6rem;
+}
+
+.key_caps {
+    width: 9rem;
+}
+
+.key_shift-left {
+    width: 10.6rem;
+}
+
+.key_shift-right {
+    width: 11.7rem;
+}
+
+.key_enter {
+    width: 13.4rem;
+}
+
+.key_ctrl-alt {
+    width: 6.2rem;
+}
+
+.key_space {
+    width: 35rem;
+}
+
+.key_arrow {
+    width: 5rem;
+    font-size: 1.5rem;
+}
+
+.flexrow {
+    flex-basis: 100%;
+    height: 0;
 }

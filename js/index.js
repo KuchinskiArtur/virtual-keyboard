@@ -132,7 +132,33 @@ const keyRu = {
   ControlRight: { value: "Control", valueShift: "Control" },
 };
 
+class VirtualKeyboard {
+  constructor() {
+      this.flagCaps = false;
+      this.shiftKey = false;
+      this.ctrlKey = false;
+  }
+  initKeyboard() {
+      const main = document.createElement("div");
+      main.classList.add("main");
+      document.body.appendChild(main);
+
+      const container = document.createElement("div");
+      container.classList.add("container");
+      main.appendChild(container);
+
+      this.textarea = document.createElement("textarea");
+      this.textarea.classList.add("textarea");
+      this.textarea.setAttribute("id", `textarea`);
+      container.appendChild(this.textarea);
+
+      this.keyboard = document.createElement("div");
+      this.keyboard.classList.add("keyboard");
+      container.appendChild(this.keyboard);
+  }
+}
+
+const virtualKeyboard = new VirtualKeyboard();
+virtualKeyboard.initKeyboard();
 
 
-
- 
