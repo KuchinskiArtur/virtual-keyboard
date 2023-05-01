@@ -146,7 +146,7 @@ class VirtualKeyboard {
       const container = document.createElement("div");
       container.classList.add("container");
       main.appendChild(container);
-
+      
       this.textarea = document.createElement("textarea");
       this.textarea.classList.add("textarea");
       this.textarea.setAttribute("id", `textarea`);
@@ -225,7 +225,7 @@ class VirtualKeyboard {
         }
     }
 }
-// даем ключи нашим кнопкам 
+// делаем название ключей для наших кнопок 
 
 keyPress(keyDown) {
     const { shiftKey } = this;
@@ -248,6 +248,7 @@ keyPress(keyDown) {
         let newInputEnd = this.textarea.selectionEnd;
         this.textarea.selectionEnd = this.textarea.selectionStart =
             newInputEnd - this.textarea.value.substring(inputEnd).length + 1;
+             // логика кнопки Enter
     } else if (keyCode === "CapsLock") {
         if (!this.flagCaps) {
             for (let element of this.keyboard.children)
@@ -260,6 +261,7 @@ keyPress(keyDown) {
                     element.textContent = element.textContent.toLowerCase();
         }
         this.flagCaps = !this.flagCaps;
+         // логика кнопки CapsLock
     } else if (keyCode === "Tab") {
         newSymbol = "    ";
         inputText =
@@ -269,6 +271,7 @@ keyPress(keyDown) {
         this.textarea.value = inputText;
         this.textarea.focus();
         this.textarea.selectionEnd = inputStart == inputEnd ? inputEnd + newSymbol.length : inputEnd;
+      // логика кнопки Tab
     } else if (keyCode === "Delete") {
         if (inputStart === inputEnd)
             inputText =
@@ -281,6 +284,7 @@ keyPress(keyDown) {
         this.textarea.value = inputText;
         this.textarea.focus();
         this.textarea.selectionEnd = this.textarea.selectionStart = inputStart;
+        // логика кнопки Del
     } else if (keyCode === "ArrowLeft") {
         if (shiftKey === true) this.textarea.selectionStart = inputStart - 1;
         else
@@ -349,6 +353,7 @@ keyPress(keyDown) {
             else
                 this.textarea.selectionEnd = this.textarea.selectionStart = inputStart - 1;
         }
+         // логика кнопки BackSpace 
     } else if (
         !keyCode.includes("Shift") &&
         !keyCode.includes("Control") &&
@@ -372,6 +377,46 @@ keyPress(keyDown) {
 }
 // записываем наш код в текстареа
 
+keyboardEvent() {
+    document.onkeydown = (event) => {
+        const keyDown = document.getElementById(event.code);
+        if (!event.code.includes("Shift") && event.shiftKey) this.shiftKey = true;
+        if (event.code === "ControlLeft" || event.code === "ControlRight") {
+            this.ctrlKey = true;
+            keyDown.classList.add("key_active");
+            event.preventDefault();
+        }
+        if (keyDown != null && !this.ctrlKey) {
+            keyDown.classList.add("key_active");
+            this.keyPress(keyDown);
+        }
+    };
+}
+//  делаем кнопки кликабельными
+
+keyboardEventCancel() {
+    document.onkeyup = (event) => {
+        const keyUp = document.getElementById(event.code);
+        const keyShiftLeft = document.getElementById("ShiftLeft");
+        const keyShiftRight = document.getElementById("ShiftRight");
+        const keyControlLeft = document.getElementById("ControlLeft");
+        const keyControlRight = document.getElementById("ControlRight");
+        if (event.code.includes("Shift")) {
+            this.shiftKey = false;
+            keyShiftLeft.classList.remove("key_active");
+            keyShiftRight.classList.remove("key_active");
+        }
+        if (event.code.includes("Control")) {
+            this.ctrlKey = false;
+            keyControlLeft.classList.remove("key_active");
+            keyControlRight.classList.remove("key_active");
+        }
+        if (keyUp != null && event.code !== "CapsLock") {
+            keyUp.classList.remove("key_active");
+        }
+    };
+}
+// отменяем после нажатия кнопки активный класс
 mouseEvent() {
     this.keyboard.onclick = (event) => {
         event.stopImmediatePropagation();
@@ -439,13 +484,47 @@ mouseEvent() {
 
 updateKeyboard() {
     this.keyboard.innerHTML = "";
-  }
+}
 }
 
+definitePressedKeys(changeLanguage, "ShiftLeft", "AltLeft");
+function changeLanguage() {
+if (lang === "eng") {
+    lang = "ru";
+} else lang = "eng";
+localStorage.clear();
+localStorage.setItem("lang_saved", lang);
+virtualKeyboard.updateKeyboard();
+virtualKeyboard.initKeyboardKeys(lang);
+}
+console.log('для переключения языка используйте shift + alt')
+// переводим язык и сохраняем его в localstorage
+
+function definitePressedKeys(func, ...codes) {
+let pressed = new Set();
+document.addEventListener("keydown", function (event) {
+    event.preventDefault();
+    pressed.add(event.code);
+    for (let code of codes) {
+        if (!pressed.has(code)) {
+            return;
+        }
+    }
+    pressed.clear();
+    func();
+});
+document.addEventListener("keyup", function (event) {
+    pressed.delete(event.code);
+});
+}
+// При нажатии по клавиатуре смотрим на нашу клаву и добавляем только одну букву выбранного нами алфавита вместо двух
 
 const virtualKeyboard = new VirtualKeyboard();
 virtualKeyboard.initKeyboard();
 if (localStorage.getItem("lang_saved"))
 lang = localStorage.getItem("lang_saved");
 virtualKeyboard.initKeyboardKeys(lang);
+virtualKeyboard.keyboardEvent();
+virtualKeyboard.keyboardEventCancel();
 virtualKeyboard.mouseEvent();
+

@@ -45,7 +45,7 @@ html {
     width: 100%;
     min-width: 87rem;
     height: 43%;
-    background-color: #1c1b1b;
+    background-color: #b0df9c;
     display: flex;
     flex-wrap: wrap;
     column-gap: 0.6rem;
@@ -80,12 +80,12 @@ html {
 }
 
 .keyboard__key:hover {
-    background-color: #062853;
+    background-color: #b0df9c;
     cursor: pointer;
 }
 
 .key_active {
-    background-color: #062853;
+    background-color: #b0df9c;
     border: #08022c 3px solid;
     transform: scale(0.9);
 }
