@@ -156,9 +156,296 @@ class VirtualKeyboard {
       this.keyboard.classList.add("keyboard");
       container.appendChild(this.keyboard);
   }
+   // создаем нашу клаву
+
+  initKeyboardKeys(lang) {
+    if (lang === "eng") this.keyboardLang = keyEng;
+    else this.keyboardLang = keyRu;
+    for (let keyCode in this.keyboardLang) {
+        let keyboardKey = document.createElement("div");
+        keyboardKey.setAttribute("id", `${keyCode}`);
+        if (keyCode === "ArrowLeft") keyboardKey.innerHTML = `&larr;`;
+        else if (keyCode === "ArrowRight") keyboardKey.innerHTML = `&rarr;`;
+        else if (keyCode === "ArrowUp") keyboardKey.innerHTML = `&uarr;`;
+        else if (keyCode === "ArrowDown") keyboardKey.innerHTML = `&darr;`;
+        else if (keyCode.includes("Control")) keyboardKey.innerHTML = `Ctrl`;
+        else if (keyCode.includes("Meta")) keyboardKey.innerHTML = `Win`;
+        else if (keyCode === "Delete") keyboardKey.innerHTML = `Del`;
+        else if (keyCode.includes("Alt")) keyboardKey.innerHTML = `Alt`;
+        else keyboardKey.innerHTML = `${this.keyboardLang[keyCode].value}`;
+        keyboardKey.classList.add("keyboard__key");
+
+        if (
+            keyCode.includes("Key") ||
+            keyCode === "BracketLeft" ||
+            keyCode === "BracketRight" ||
+            keyCode === "Semicolon" ||
+            keyCode === "Quote" ||
+            keyCode === "Backquote" ||
+            keyCode === "Comma" ||
+            keyCode === "Period"
+        )
+            keyboardKey.classList.add("key_symbol-letter");
+
+        if (keyCode === "Backspace") keyboardKey.classList.add("key_backspace");
+        if (keyCode === "Tab" || keyCode === "Delete")
+            keyboardKey.classList.add("key_tab-del");
+        if (keyCode.includes("Digit")) keyboardKey.classList.add("key_digit");
+        if (keyCode === "CapsLock") keyboardKey.classList.add("key_caps");
+        if (keyCode === "Enter") keyboardKey.classList.add("key_enter");
+        if (keyCode.includes("Control") || keyCode.includes("Alt"))
+            keyboardKey.classList.add("key_ctrl-alt");
+        if (keyCode === "Space") keyboardKey.classList.add("key_space");
+        if (keyCode.includes("Arrow")) keyboardKey.classList.add("key_arrow");
+        if (keyCode === "ShiftLeft") keyboardKey.classList.add("key_shift-left");
+        if (keyCode === "ShiftRight") keyboardKey.classList.add("key_shift-right");
+
+        this.keyboard.appendChild(keyboardKey);
+
+        if (
+            keyCode.includes("Digit") ||
+            keyCode === "Minus" ||
+            keyCode === "Equal"
+        ) {
+            const shiftSymbol = document.createElement("div");
+            shiftSymbol.innerHTML = `${this.keyboardLang[keyCode].valueShift}`;
+            shiftSymbol.classList.add("keyboard__key_shift-symbol");
+            keyboardKey.appendChild(shiftSymbol);
+        }
+
+        if (
+            keyCode === "Backspace" ||
+            keyCode === "Delete" ||
+            keyCode === "Enter" ||
+            keyCode === "ShiftRight"
+        ) {
+            const flexrow = document.createElement("div");
+            flexrow.classList.add("flexrow");
+            this.keyboard.appendChild(flexrow);
+        }
+    }
 }
+// даем ключи нашим кнопкам 
+
+keyPress(keyDown) {
+    const { shiftKey } = this;
+    const keyCode = keyDown.getAttribute("id");
+    const { value } = this.keyboardLang[keyCode];
+    const { valueShift } = this.keyboardLang[keyCode];
+    let newSymbol = "";
+    let inputText = "";
+    let inputStart = this.textarea.selectionStart;
+    let inputEnd = this.textarea.selectionEnd;
+    keyDown.classList.add("key_active");
+    this.textarea.focus();
+    if (keyCode === "Enter") {
+        inputText =
+            this.textarea.value.substring(0, inputStart) +
+            "\n" +
+            this.textarea.value.substring(inputEnd);
+        this.textarea.value = inputText;
+        this.textarea.focus();
+        let newInputEnd = this.textarea.selectionEnd;
+        this.textarea.selectionEnd = this.textarea.selectionStart =
+            newInputEnd - this.textarea.value.substring(inputEnd).length + 1;
+    } else if (keyCode === "CapsLock") {
+        if (!this.flagCaps) {
+            for (let element of this.keyboard.children)
+                if (element.classList.contains("key_symbol-letter"))
+                    element.textContent = element.textContent.toUpperCase();
+        } else {
+            keyDown.classList.remove("key_active");
+            for (let element of this.keyboard.children)
+                if (element.classList.contains("key_symbol-letter"))
+                    element.textContent = element.textContent.toLowerCase();
+        }
+        this.flagCaps = !this.flagCaps;
+    } else if (keyCode === "Tab") {
+        newSymbol = "    ";
+        inputText =
+            this.textarea.value.substring(0, inputStart) +
+            newSymbol +
+            this.textarea.value.substring(inputEnd);
+        this.textarea.value = inputText;
+        this.textarea.focus();
+        this.textarea.selectionEnd = inputStart == inputEnd ? inputEnd + newSymbol.length : inputEnd;
+    } else if (keyCode === "Delete") {
+        if (inputStart === inputEnd)
+            inputText =
+                this.textarea.value.substring(0, inputStart) +
+                this.textarea.value.substring(inputEnd + 1);
+        else
+            inputText =
+                this.textarea.value.substring(0, inputStart) +
+                this.textarea.value.substring(inputEnd);
+        this.textarea.value = inputText;
+        this.textarea.focus();
+        this.textarea.selectionEnd = this.textarea.selectionStart = inputStart;
+    } else if (keyCode === "ArrowLeft") {
+        if (shiftKey === true) this.textarea.selectionStart = inputStart - 1;
+        else
+            this.textarea.selectionEnd = this.textarea.selectionStart = inputStart - 1;
+    } else if (keyCode === "ArrowRight") {
+        if (shiftKey === true) this.textarea.selectionEnd = inputEnd + 1;
+        else
+            this.textarea.selectionEnd = this.textarea.selectionStart = inputStart + 1;
+    } else if (keyCode === "ArrowUp") {
+        let strPos;
+        if (this.textarea.value[inputEnd] === "\n")
+            strPos = this.textarea.value.lastIndexOf("\n", inputEnd - 1);
+        else strPos = this.textarea.value.lastIndexOf("\n", inputEnd);
+        if (strPos !== -1) {
+            let curStrLength = inputEnd - strPos;
+            let prevStrPos = this.textarea.value.lastIndexOf("\n", strPos - 1);
+            let prevStrLength;
+            if (prevStrPos !== -1) prevStrLength = strPos - prevStrPos;
+            else prevStrLength = inputEnd - curStrLength + 1;
+
+            if (curStrLength >= prevStrLength)
+                this.textarea.selectionEnd = this.textarea.selectionStart = strPos;
+            else
+                this.textarea.selectionEnd = this.textarea.selectionStart =
+                    inputEnd - prevStrLength;
+        }
+    } else if (keyCode === "ArrowDown") {
+        let strPos;
+        if (this.textarea.value[inputEnd] === "\n")
+            strPos = this.textarea.value.lastIndexOf("\n", inputEnd - 1);
+        else strPos = this.textarea.value.lastIndexOf("\n", inputEnd);
+        let curStrLength;
+        let nextStrLength;
+        if (strPos !== -1) curStrLength = inputEnd - strPos;
+        else curStrLength = inputEnd + 1;
+
+        let endCurStrPos = this.textarea.value.indexOf("\n", inputEnd);
+        if (endCurStrPos !== -1) {
+            let nextStrPos = this.textarea.value.indexOf("\n", endCurStrPos + 1);
+            if (nextStrPos === -1) {
+                nextStrPos = this.textarea.value.length;
+            }
+
+            nextStrLength = nextStrPos - endCurStrPos;
+
+            if (curStrLength >= nextStrLength)
+                this.textarea.selectionEnd = this.textarea.selectionStart = nextStrPos;
+            else
+                this.textarea.selectionEnd = this.textarea.selectionStart =
+                    endCurStrPos + curStrLength;
+        }
+    } else if (keyCode === "Backspace") {
+        if (inputStart !== 0) {
+            if (inputStart === inputEnd)
+                inputText =
+                    this.textarea.value.substring(0, inputStart - 1) +
+                    this.textarea.value.substring(inputEnd);
+            else
+                inputText =
+                    this.textarea.value.substring(0, inputStart) +
+                    this.textarea.value.substring(inputEnd);
+            this.textarea.value = inputText;
+            this.textarea.focus();
+            if (inputStart === inputEnd)
+                this.textarea.selectionEnd = this.textarea.selectionStart = inputStart - 1;
+            else
+                this.textarea.selectionEnd = this.textarea.selectionStart = inputStart - 1;
+        }
+    } else if (
+        !keyCode.includes("Shift") &&
+        !keyCode.includes("Control") &&
+        !keyCode.includes("Alt") &&
+        !keyCode.includes("Meta")
+    ) {
+        if (!this.flagCaps) {
+            newSymbol = value;
+        } else {
+            newSymbol = value.toUpperCase();
+        }
+        if (shiftKey === true) newSymbol = valueShift;
+        inputText =
+            this.textarea.value.substring(0, inputStart) +
+            newSymbol +
+            this.textarea.value.substring(inputEnd);
+
+        this.textarea.value = inputText;
+        this.textarea.focus();
+    }
+}
+// записываем наш код в текстареа
+
+mouseEvent() {
+    this.keyboard.onclick = (event) => {
+        event.stopImmediatePropagation();
+        event.preventDefault();
+        const keyShiftLeft = document.getElementById("ShiftLeft");
+        const keyShiftRight = document.getElementById("ShiftRight");
+        const keyControlLeft = document.getElementById("ControlLeft");
+        const keyControlRight = document.getElementById("ControlRight");
+        const keyCode = event.target.getAttribute("id");
+
+        if (keyCode) {
+            if (keyCode.includes("Shift")) {
+                if (
+                    keyShiftLeft.classList.contains("key_active") ||
+                    keyShiftRight.classList.contains("key_active")
+                ) {
+                    this.shiftKey = false;
+                    keyShiftLeft.classList.remove("key_active");
+                    keyShiftRight.classList.remove("key_active");
+                } else this.shiftKey = true;
+            }
+
+            if (keyCode.includes("Control")) {
+                if (
+                    keyControlLeft.classList.contains("key_active") ||
+                    keyControlRight.classList.contains("key_active")
+                ) {
+                    this.ctrlKey = false;
+                    keyControlLeft.classList.remove("key_active");
+                    keyControlRight.classList.remove("key_active");
+                } else this.ctrlKey = true;
+            }
+
+            if (
+                this.ctrlKey &&
+                (keyControlLeft.classList.contains("key_active") ||
+                    keyControlRight.classList.contains("key_active"))
+            ) {
+                return;
+            }
+
+            this.keyPress(event.target);
+
+            if (
+                keyCode !== "CapsLock" &&
+                !keyCode.includes("Shift") &&
+                !keyCode.includes("Control")
+            )
+                event.target.classList.remove("key_active");
+            if (keyCode.includes("Shift") && !this.shiftKey)
+                event.target.classList.remove("key_active");
+
+            if (keyCode.includes("Control") && !this.ctrlKey)
+                event.target.classList.remove("key_active");
+        }
+        if (this.shiftKey === true && keyCode === "AltLeft") {
+            changeLanguage();
+            this.shiftKey = false;
+            keyShiftLeft.classList.remove("key_active");
+            keyShiftRight.classList.remove("key_active");
+        }
+    };
+}
+// делаем кликабельными кнопки при нажатии мышкой по электронной клавиатуре 
+
+updateKeyboard() {
+    this.keyboard.innerHTML = "";
+  }
+}
+
 
 const virtualKeyboard = new VirtualKeyboard();
 virtualKeyboard.initKeyboard();
-
-
+if (localStorage.getItem("lang_saved"))
+lang = localStorage.getItem("lang_saved");
+virtualKeyboard.initKeyboardKeys(lang);
+virtualKeyboard.mouseEvent();

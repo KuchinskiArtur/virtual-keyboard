@@ -69,6 +69,16 @@ html {
     transition: 0.3s;
 }
 
+.keyboard__key_shift-symbol {
+    position: absolute;
+    right: 0.4rem;
+    font-size: 1.2rem;
+    opacity: 0.8;
+    justify-self: flex-end;
+    align-self: flex-start;
+    padding-left: 0.1rem;
+}
+
 .keyboard__key:hover {
     background-color: #062853;
     cursor: pointer;
