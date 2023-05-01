@@ -132,6 +132,7 @@ const keyRu = {
   ControlRight: { value: "Control", valueShift: "Control" },
 };
 
+let lang;
 class VirtualKeyboard {
   constructor() {
       this.flagCaps = false;
